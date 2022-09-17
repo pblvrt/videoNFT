@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/home/pablov/Code/videoNFT/contracts/NFT.sol": {
-      "lastModificationDate": 1663431658078,
-      "contentHash": "e7394575767d3cdb816f3e170da05680",
+      "lastModificationDate": 1663432835414,
+      "contentHash": "da076ce79c7bcef4f938d4015ec3ad01",
       "sourceName": "contracts/NFT.sol",
       "solcConfig": {
         "version": "0.8.1",
