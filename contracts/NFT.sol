@@ -37,18 +37,9 @@ function tokenURI(uint256 tokenId) override public view returns (string memory) 
     return baseTokenURI;
   }
 
-  /// @dev Returns an URI for a given token ID
-  function _baseURI() internal view virtual override returns (string memory) {
-    return baseTokenURI;
-  }
-
   /// @dev Sets the base token URI prefix.
   function setBaseTokenURI(string memory _baseTokenURI) public onlyOwner {
     baseTokenURI = _baseTokenURI;
   }
 
-  /// @dev Overridden in order to make it an onlyOwner function
-  function withdrawPayments(address payable payee) public override onlyOwner virtual {
-      super.withdrawPayments(payee);
-  }
 }
