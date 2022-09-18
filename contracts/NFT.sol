@@ -8,6 +8,12 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract NFT is ERC721, PullPayment, Ownable {
     using Counters for Counters.Counter;
+
+    // Errors
+    error NotEnoughEther(string notEnoughMessage);
+    error MaxSupplyReached(string maxSupplyMessage);
+
+    // Variables
     uint256 public price = 0.1 ether;
 
     // Constants
@@ -22,16 +28,6 @@ contract NFT is ERC721, PullPayment, Ownable {
         baseTokenURI = "";
     }
 
-    function mintTo(address recipient) public payable returns (uint256) {
-        uint256 tokenId = currentTokenId.current();
-        require(tokenId < TOTAL_SUPPLY, "Max supply reached");
-        require(msg.value >= price, "Not enough ETH sent");
-
-        currentTokenId.increment();
-        uint256 newItemId = currentTokenId.current();
-        _safeMint(recipient, newItemId);
-        return newItemId;
-    }
 
     function tokenURI(uint256 tokenId)
         public
@@ -62,5 +58,23 @@ contract NFT is ERC721, PullPayment, Ownable {
     function withdraw() public payable onlyOwner nonReentrant {
         (bool os, ) = payable(owner()).call{value: address(this).balance}("");
         require(os);
+    }
+
+    /// @notice Solidity 8 error handling
+    /// @dev mint funciton to specific address
+    function mintTo(address recipient) public payable returns (uint256) {
+        uint256 tokenId = currentTokenId.current();
+
+        if (tokenId >= TOTAL_SUPPLY) {
+            revert MaxSupplyReached("Max supply reached");
+        }
+        if (msg.value < price) {
+            revert NotEnoughEther("Not enough ether");
+        }
+
+        currentTokenId.increment();
+        uint256 newItemId = currentTokenId.current();
+        _safeMint(recipient, newItemId);
+        return newItemId;
     }
 }
