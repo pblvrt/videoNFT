@@ -6,40 +6,61 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/security/PullPayment.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-
 contract NFT is ERC721, PullPayment, Ownable {
-  using Counters for Counters.Counter;
+    using Counters for Counters.Counter;
+    uint256 public price = 0.1 ether;
 
-  // Constants
-  uint256 public constant TOTAL_SUPPLY = 10_000;
+    // Constants
+    uint256 public constant TOTAL_SUPPLY = 10_000;
 
-  Counters.Counter private currentTokenId;
+    Counters.Counter private currentTokenId;
 
-  /// @dev Base token URI used as a prefix by tokenURI().
-  string public baseTokenURI;
+    /// @dev Base token URI used as a prefix by tokenURI().
+    string public baseTokenURI;
 
-  constructor() ERC721("NFTTutorial", "NFT") {
-    baseTokenURI = "";
-  }
+    constructor() ERC721("NFTTutorial", "NFT") {
+        baseTokenURI = "";
+    }
 
-  function mintTo(address recipient) public payable returns (uint256) {
-    uint256 tokenId = currentTokenId.current();
-    require(tokenId < TOTAL_SUPPLY, "Max supply reached");
+    function mintTo(address recipient) public payable returns (uint256) {
+        uint256 tokenId = currentTokenId.current();
+        require(tokenId < TOTAL_SUPPLY, "Max supply reached");
+        require(msg.value >= price, "Not enough ETH sent");
 
-    currentTokenId.increment();
-    uint256 newItemId = currentTokenId.current();
-    _safeMint(recipient, newItemId);
-    return newItemId;
-  }
+        currentTokenId.increment();
+        uint256 newItemId = currentTokenId.current();
+        _safeMint(recipient, newItemId);
+        return newItemId;
+    }
 
-function tokenURI(uint256 tokenId) override public view returns (string memory) {
-    require(_exists(tokenId), "ERC721Metadata: URI query for nonexistent token");
-    return baseTokenURI;
-  }
+    function tokenURI(uint256 tokenId)
+        public
+        view
+        override
+        returns (string memory)
+    {
+        require(
+            _exists(tokenId),
+            "ERC721Metadata: URI query for nonexistent token"
+        );
+        return baseTokenURI;
+    }
 
-  /// @dev Sets the base token URI prefix.
-  function setBaseTokenURI(string memory _baseTokenURI) public onlyOwner {
-    baseTokenURI = _baseTokenURI;
-  }
+    /// @notice Openzeppelin contrac wizard doesn't generate the logic for a token with a price 
+    /// @dev Sets the price for the NFT.
+    function setTokenPrice(uint256 _price) public onlyOwner {
+        price = _price;
+    }
 
+    /// @dev Sets the base token URI prefix.
+    function setBaseTokenURI(string memory _baseTokenURI) public onlyOwner {
+        baseTokenURI = _baseTokenURI;
+    }
+
+    /// @notice This function substitutes the previous withdraw function
+    /// @dev This function is used to withdraw the funds from the contract
+    function withdraw() public payable onlyOwner nonReentrant {
+        (bool os, ) = payable(owner()).call{value: address(this).balance}("");
+        require(os);
+    }
 }
