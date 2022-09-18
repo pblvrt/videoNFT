@@ -3,10 +3,9 @@ pragma solidity ^0.8.1;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
-import "@openzeppelin/contracts/security/PullPayment.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract NFT is ERC721, PullPayment, Ownable {
+contract NFT is ERC721, Ownable {
     using Counters for Counters.Counter;
 
     // Errors
@@ -28,7 +27,6 @@ contract NFT is ERC721, PullPayment, Ownable {
         baseTokenURI = "";
     }
 
-
     function tokenURI(uint256 tokenId)
         public
         view
@@ -42,7 +40,6 @@ contract NFT is ERC721, PullPayment, Ownable {
         return baseTokenURI;
     }
 
-    /// @notice Openzeppelin contrac wizard doesn't generate the logic for a token with a price 
     /// @dev Sets the price for the NFT.
     function setTokenPrice(uint256 _price) public onlyOwner {
         price = _price;
@@ -55,7 +52,7 @@ contract NFT is ERC721, PullPayment, Ownable {
 
     /// @notice This function substitutes the previous withdraw function
     /// @dev This function is used to withdraw the funds from the contract
-    function withdraw() public payable onlyOwner nonReentrant {
+    function withdraw() public payable onlyOwner {
         (bool os, ) = payable(owner()).call{value: address(this).balance}("");
         require(os);
     }
